@@ -2,6 +2,7 @@
 
 import sys
 import numpy as np
+import math
 
 def intify(line):
     l = line.strip().split()
@@ -52,14 +53,16 @@ class Problem:
             aux[2] = self.density_matrix[max_cache[2], max_video[2]]
             self.density_matrix[max_cache[1], max_video[1]] = aux[0]
             self.density_matrix[max_cache[2], max_video[2]] = aux[1]
-            aux[0] = self.video_sizes[max_video[0]]*aux[0]
-            aux[1] = self.video_sizes[max_video[1]]*aux[1]
-            aux[2] = self.video_sizes[max_video[2]]*aux[2]
+            aux[0] = math.exp(self.video_sizes[max_video[0]]*aux[0]/10000)
+            aux[1] = math.exp(self.video_sizes[max_video[1]]*aux[1]/10000)
+            aux[2] = math.exp(self.video_sizes[max_video[2]]*aux[2]/10000)
             sum = aux[0] + aux[1] + aux[2]
             aux[0] /= sum
             aux[1] /= sum
             aux[2] /= sum
             index = np.random.choice(np.arange(0, 3), p=[aux[0], aux[1], aux[2] ])
+
+            #index = np.random.choice(np.arange(0, 2), p=[aux[0], aux[1] ])
             max_cache = max_cache[index]
             max_video = max_video[index]
             self.caches[max_cache]['videos'].add(max_video)
@@ -120,7 +123,7 @@ def main():
     #with open('me_at_the_zoo.in', 'r') as f:
     #with open('kittens.in', 'r') as f:
     max_score = 0
-    for i in range(10000):
+    for i in range(1000):
         with open('me_at_the_zoo.in', 'r') as f:
             ls = f.readlines()
         n_videos, n_ends, n_requests, n_cache_servers, cache_capacity = intify(ls[0])
