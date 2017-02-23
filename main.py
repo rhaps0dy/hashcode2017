@@ -38,9 +38,30 @@ class Problem:
             for video in range(self.density_matrix.shape[1]):
                 if (cache, video) in self.requests_by_cache_video:
                     self.density_matrix[cache,video] = self.video_density(cache, video)
-
         while np.any(self.density_matrix):
-            max_cache, max_video = np.unravel_index(np.argmax(self.density_matrix), self.density_matrix.shape)
+            aux = [0, 0, 0]
+            max_cache = [0, 0, 0]
+            max_video = [0, 0, 0]
+            max_cache[0], max_video[0] = np.unravel_index(np.argmax(self.density_matrix), self.density_matrix.shape)
+            aux[0] = self.density_matrix[max_cache[0], max_video[0]]
+            self.density_matrix[max_cache[0], max_video[0]] = 0
+            max_cache[1], max_video[1] = np.unravel_index(np.argmax(self.density_matrix), self.density_matrix.shape)
+            aux[1] = self.density_matrix[max_cache[1], max_video[1]]
+            self.density_matrix[max_cache[1], max_video[1]] = 0
+            max_cache[2], max_video[2] = np.unravel_index(np.argmax(self.density_matrix), self.density_matrix.shape)
+            aux[2] = self.density_matrix[max_cache[2], max_video[2]]
+            self.density_matrix[max_cache[1], max_video[1]] = aux[0]
+            self.density_matrix[max_cache[2], max_video[2]] = aux[1]
+            aux[0] = self.video_sizes[max_video[0]]*aux[0]
+            aux[1] = self.video_sizes[max_video[1]]*aux[1]
+            aux[2] = self.video_sizes[max_video[2]]*aux[2]
+            sum = aux[0] + aux[1] + aux[2]
+            aux[0] /= sum
+            aux[1] /= sum
+            aux[2] /= sum
+            index = np.random.choice(np.arange(0, 3), p=[aux[0], aux[1], aux[2] ])
+            max_cache = max_cache[index]
+            max_video = max_video[index]
             self.caches[max_cache]['videos'].add(max_video)
             self.caches[max_cache]['capacity_left'] -= self.video_sizes[max_video]
 
@@ -90,8 +111,8 @@ class Problem:
 def main():
     #with open('me_at_the_zoo.in', 'r') as f:
     #with open('me_at_the_zoo.in', 'r') as f:
-    #with open('me_at_the_zoo.in', 'r') as f:
-    with open('kittens.in', 'r') as f:
+    #with open('kittens.in', 'r') as f:
+    with open('me_at_the_zoo.in', 'r') as f:
         ls = f.readlines()
     n_videos, n_ends, n_requests, n_cache_servers, cache_capacity = intify(ls[0])
     videos = intify(ls[1])
