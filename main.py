@@ -48,6 +48,10 @@ class Problem:
             to_update, = np.where(self.density_matrix[:, max_video] != 0.0)
             for cache in to_update:
                 self.density_matrix[cache, max_video] = self.video_density(cache, max_video)
+            to_update, = np.where(self.density_matrix[max_cache, :] != 0.0)
+            for video in to_update:
+                if self.video_sizes[video] > self.caches[max_cache]['capacity_left']:
+                    self.density_matrix[max_cache,video] = 0
             to_update, = np.where(self.density_matrix[:, max_video] != 0.0)
             if len(to_update) == 0:
                 col_left[max_video] = False
@@ -81,8 +85,9 @@ class Problem:
             print(" ".join(str(a) for a in ([i] + list(c))))
 
     def calc_score(self):
+        print(self.caches)
         for i, c in enumerate(self.caches):
-            print("Cache {:d}: sum {:d}".format(sum(self.video_sizes[v] for v in c['videos'])), i)
+            print("Cache {:d}: sum {:d}".format(i, (sum(self.video_sizes[v] for v in c['videos']))))
         pass
 
 def main():
