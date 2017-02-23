@@ -103,10 +103,17 @@ class Problem:
             print(" ".join(str(a) for a in ([i] + list(c))))
 
     def calc_score(self):
-        print(self.caches)
-        for i, c in enumerate(self.caches):
-            print("Cache {:d}: sum {:d}".format(i, (sum(self.video_sizes[v] for v in c['videos']))))
-        pass
+        t = 0
+        nreqs = 0
+        for r in self.requests:
+            endp = self.endpoints[r['endpoint_i']]
+            min_latency = endp['latency']
+            for c_id, c_lat in endp['caches'].items():
+                if r['video_i'] in self.caches[c_id]['videos']:
+                    min_latency = min(min_latency, c_lat)
+            t += (endp['latency'] - min_latency)*r['n']
+            nreqs += r['n']
+        return (t*1000) / nreqs
 
 def main():
     #with open('me_at_the_zoo.in', 'r') as f:
