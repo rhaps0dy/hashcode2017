@@ -44,6 +44,7 @@ class Problem:
             max_cache, max_video = np.unravel_index(np.argmax(self.density_matrix), self.density_matrix.shape)
             self.caches[max_cache]['videos'].add(max_video)
             self.caches[max_cache]['capacity_left'] -= self.video_sizes[max_video]
+
             self.density_matrix[max_cache, max_video] = 0
             to_update, = np.where(self.density_matrix[:, max_video] != 0.0)
             for cache in to_update:
@@ -86,7 +87,7 @@ class Problem:
         pass
 
 def main():
-    with open(sys.argv[1], 'r') as f:
+    with open('me_at_the_zoo.in', 'r') as f:
         ls = f.readlines()
     n_videos, n_ends, n_requests, n_cache_servers, cache_capacity = intify(ls[0])
     videos = intify(ls[1])
