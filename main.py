@@ -39,17 +39,18 @@ class Problem:
                 if (cache, video) in self.requests_by_cache_video:
                     self.density_matrix[cache,video] = self.video_density(cache, video)
 
-        col_left = np.ones(shape=[self.density_matrix.shape[1]], dtype=np.bool)
+        col_left = np.max(self.density_matrix, axis=0) != 0.0
         while np.any(col_left):
             max_cache, max_video = np.unravel_index(np.argmax(self.density_matrix), self.density_matrix.shape)
             self.caches[max_cache]['videos'].add(max_video)
             self.caches[max_cache]['capacity_left'] -= self.video_sizes[max_video]
             self.density_matrix[max_cache, max_video] = 0
-            to_update, = np.where(self.density_matrix[max_cache,:] != 0.0)
-            for video in to_update:
-                self.density_matrix[max_cache, video] = self.video_density(max_cache, video)
+            to_update, = np.where(self.density_matrix[:, max_video] != 0.0)
+            for cache in to_update:
+                self.density_matrix[cache, max_video] = self.video_density(cache, max_video)
+            to_update, = np.where(self.density_matrix[:, max_video] != 0.0)
             if len(to_update) == 0:
-                col_left[video] = False
+                col_left[max_video] = False
 
     def video_density(self, cache, video):
         video_size = self.video_sizes[video]
@@ -80,7 +81,7 @@ class Problem:
             print(" ".join([i] + list(c)))
 
 def main():
-    with open(sys.argv[1], 'r') as f:
+    with open('test.in', 'r') as f:
         ls = f.readlines()
     n_videos, n_ends, n_requests, n_cache_servers, cache_capacity = intify(ls[0])
     videos = intify(ls[1])
