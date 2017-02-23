@@ -113,7 +113,7 @@ class Problem:
                     min_latency = min(min_latency, c_lat)
             t += (endp['latency'] - min_latency)*r['n']
             nreqs += r['n']
-        return (t*1000) / nreqs
+        return (t*1000) // nreqs
 
 def main():
     #with open('me_at_the_zoo.in', 'r') as f:
