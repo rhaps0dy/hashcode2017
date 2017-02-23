@@ -74,14 +74,19 @@ class Problem:
     def print_output(self):
         cs = {}
         for i, c in enumerate(self.caches):
-            if not c['videos'].empty():
+            if len(c['videos']) != 0:
                 cs[i] = c['videos']
         print(len(cs))
         for i, c in cs.items():
-            print(" ".join([i] + list(c)))
+            print(" ".join(str(a) for a in ([i] + list(c))))
+
+    def calc_score(self):
+        for i, c in enumerate(self.caches):
+            print("Cache {:d}: sum {:d}".format(sum(self.video_sizes[v] for v in c['videos'])), i)
+        pass
 
 def main():
-    with open('test.in', 'r') as f:
+    with open(sys.argv[1], 'r') as f:
         ls = f.readlines()
     n_videos, n_ends, n_requests, n_cache_servers, cache_capacity = intify(ls[0])
     videos = intify(ls[1])
@@ -102,6 +107,7 @@ def main():
     p = Problem(videos, endpoints, requests, cache_capacity, n_cache_servers)
     p.solve()
     p.print_output()
+    print("score:", p.calc_score())
 
 if __name__ == '__main__':
     main()
