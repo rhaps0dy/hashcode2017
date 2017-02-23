@@ -142,11 +142,11 @@ def main():
         p = Problem(videos, endpoints, requests, cache_capacity, n_cache_servers)
         p.solve()
         score = p.calc_score()
-        if  max < score:
-            max = score
+        if  max_score < score:
+            max_score = score
             output = p
             p.print_output()
-            p.print('=')
+            print('=')
     print("score:", max_score)
 
 if __name__ == '__main__':
