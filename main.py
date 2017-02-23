@@ -119,7 +119,8 @@ def main():
     #with open('me_at_the_zoo.in', 'r') as f:
     #with open('me_at_the_zoo.in', 'r') as f:
     #with open('kittens.in', 'r') as f:
-    for i in range(100):
+    max_score = 0
+    for i in range(10000):
         with open('me_at_the_zoo.in', 'r') as f:
             ls = f.readlines()
         n_videos, n_ends, n_requests, n_cache_servers, cache_capacity = intify(ls[0])
@@ -138,15 +139,14 @@ def main():
         for l in ls:
             video, endpoint, n = intify(l)
             requests.append({'video_i': video, 'endpoint_i': endpoint, 'n': n})
-        max_score = 0
         p = Problem(videos, endpoints, requests, cache_capacity, n_cache_servers)
         p.solve()
         score = p.calc_score()
         if  max_score < score:
             max_score = score
-            output = p
             p.print_output()
             print('=')
+            print(max_score)
     print("score:", max_score)
 
 if __name__ == '__main__':
