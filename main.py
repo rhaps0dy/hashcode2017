@@ -14,12 +14,12 @@ class Problem:
         self.requests = requests
         self.cache_capacity = cache_capacity
 
-        self.caches = list({'videos': set(), 'capacity_left': 0, 'endpoints': []} for _ in range(n_cache_servers))
+        self.caches = list({'videos': set(), 'capacity_left': cache_capacity, 'endpoints': []} for _ in range(n_cache_servers))
         for e in self.endpoints:
             for c_id, c_lat in e['caches'].items():
                 self.caches[c_id]['endpoints'].append({'endpoint': e, 'latency': c_lat})
 
-        self.requests_by_video = list([] for _ in range(len(self.videos)))
+        self.requests_by_video = list([] for _ in range(len(self.video_sizes)))
         for r in self.requests:
             self.requests_by_video[r['video_i']].append(r)
 
@@ -33,17 +33,17 @@ class Problem:
                         self.requests_by_cache_video[t] = []
                     self.requests_by_cache_video[t].append(r)
 
-        self.solve_problem()
-
-    def solve_problem(self):
-        for cache in range(self.density_matrix[0]):
-            for video in range(self.density_matrix[1]):
-                self.density_matrix[cache,video] = self.video_density(cache, video)
+    def solve(self):
+        for cache in range(self.density_matrix.shape[0]):
+            for video in range(self.density_matrix.shape[1]):
+                if (cache, video) in self.requests_by_cache_video:
+                    self.density_matrix[cache,video] = self.video_density(cache, video)
 
         col_left = np.ones(shape=[self.density_matrix.shape[1]], dtype=np.bool)
         while np.any(col_left):
             max_cache, max_video = np.unravel_index(np.argmax(self.density_matrix), self.density_matrix.shape)
             self.caches[max_cache]['videos'].add(max_video)
+            self.caches[max_cache]['capacity_left'] -= self.video_sizes[max_video]
             self.density_matrix[max_cache, max_video] = 0
             to_update, = np.where(self.density_matrix[max_cache,:] != 0.0)
             for video in to_update:
@@ -53,7 +53,7 @@ class Problem:
 
     def video_density(self, cache, video):
         video_size = self.video_sizes[video]
-        if video_size > self.cache_left_capacity[cache]:
+        if video_size > self.caches[cache]['capacity_left']:
             return 0.0
 
         sum_densities = 0
@@ -70,6 +70,14 @@ class Problem:
 
         return sum_densities / video_size
 
+    def print_output(self):
+        cs = {}
+        for i, c in enumerate(self.caches):
+            if not c['videos'].empty():
+                cs[i] = c['videos']
+        print(len(cs))
+        for i, c in cs.items():
+            print(" ".join([i] + list(c)))
 
 def main():
     with open(sys.argv[1], 'r') as f:
@@ -91,6 +99,8 @@ def main():
         video, endpoint, n = intify(l)
         requests.append({'video_i': video, 'endpoint_i': endpoint, 'n': n})
     p = Problem(videos, endpoints, requests, cache_capacity, n_cache_servers)
+    p.solve()
+    p.print_output()
 
 if __name__ == '__main__':
     main()
