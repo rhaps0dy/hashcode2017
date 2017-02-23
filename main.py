@@ -112,28 +112,35 @@ def main():
     #with open('me_at_the_zoo.in', 'r') as f:
     #with open('me_at_the_zoo.in', 'r') as f:
     #with open('kittens.in', 'r') as f:
-    with open('me_at_the_zoo.in', 'r') as f:
-        ls = f.readlines()
-    n_videos, n_ends, n_requests, n_cache_servers, cache_capacity = intify(ls[0])
-    videos = intify(ls[1])
-    ls = ls[2:]
-    endpoints = []
-    for e in range(n_ends):
-        latency, n_caches = intify(ls[0])
-        d = {'latency': latency, 'caches': {}}
-        for c in range(n_caches):
-            c_id, c_lat = intify(ls[1+c])
-            d['caches'][c_id] = c_lat
-        endpoints.append(d)
-        ls = ls[1+n_caches:]
-    requests = []
-    for l in ls:
-        video, endpoint, n = intify(l)
-        requests.append({'video_i': video, 'endpoint_i': endpoint, 'n': n})
-    p = Problem(videos, endpoints, requests, cache_capacity, n_cache_servers)
-    p.solve()
-    p.print_output()
-    print("score:", p.calc_score())
+    for i in range(100):
+        with open('me_at_the_zoo.in', 'r') as f:
+            ls = f.readlines()
+        n_videos, n_ends, n_requests, n_cache_servers, cache_capacity = intify(ls[0])
+        videos = intify(ls[1])
+        ls = ls[2:]
+        endpoints = []
+        for e in range(n_ends):
+            latency, n_caches = intify(ls[0])
+            d = {'latency': latency, 'caches': {}}
+            for c in range(n_caches):
+                c_id, c_lat = intify(ls[1+c])
+                d['caches'][c_id] = c_lat
+            endpoints.append(d)
+            ls = ls[1+n_caches:]
+        requests = []
+        for l in ls:
+            video, endpoint, n = intify(l)
+            requests.append({'video_i': video, 'endpoint_i': endpoint, 'n': n})
+        max_score = 0
+        p = Problem(videos, endpoints, requests, cache_capacity, n_cache_servers)
+        p.solve()
+        score = p.calc_score()
+        if  max < score:
+            max = score
+            output = p
+            p.print_output()
+            p.print('=')
+    print("score:", max_score)
 
 if __name__ == '__main__':
     main()
